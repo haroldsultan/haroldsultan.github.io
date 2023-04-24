@@ -74,23 +74,26 @@
       m0toM1Btn.addEventListener('click', () => {
         let current_m0 = parseInt(m0_input.value);
         let current_m1 = parseInt(m1_input.value);
-
-        current_m0--;
-        m0_input.value = current_m0;
-        current_m1++;
-        m1_input.value = current_m1;
-        drawGraphButton.click();
+        if (current_m0 > 1){
+          current_m0--;
+          m0_input.value = current_m0;
+          current_m1++;
+          m1_input.value = current_m1;
+          drawGraphButton.click();
+        }
       });
 
       m1toM2Btn.addEventListener('click', () => {
         let current_m1 = parseInt(m1_input.value);
         let current_m2 = parseInt(m2_input.value);
 
-        current_m1--;
-        m1_input.value = current_m1;
-        current_m2++;
-        m2_input.value = current_m2;
-        drawGraphButton.click();
+        if (current_m1 > 1){
+          current_m1--;
+          m1_input.value = current_m1;
+          current_m2++;
+          m2_input.value = current_m2;
+          drawGraphButton.click();
+        }
       });
 
       incrementBtn.addEventListener('click', () => {
@@ -102,9 +105,11 @@
 
       decrementBtn.addEventListener('click', () => {
         let current_ic = parseInt(ic_input.value);
-        current_ic--;
-        ic_input.value = current_ic;
-        drawGraphButton.click();
+        if (current_ic > 1){
+          current_ic--;
+          ic_input.value = current_ic;
+          drawGraphButton.click();
+        }
       });
       window.onload = () => drawGraphButton.click();
     </script>
