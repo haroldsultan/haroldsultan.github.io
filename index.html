@@ -32,13 +32,13 @@
     </script>
     <h2>Positions Breakdown</h2>
     <label for="num-ics">Number of ICs:</label>
-    <input type="number" onkeydown="runSomething()" id="num-ics" min="1" value="60"><br>
+    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-ics" min="1" value="60"><br>
     <label for="num-m0">Number of ICs with Reports:</label>
-    <input type="number" id="num-m0" min="0" value="3"><br>
+    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m0" min="0" value="3"><br>
     <label for="num-m1">Number of Managers:</label>
-    <input type="number" id="num-m1" min="0" value="4"><br>
+    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m1" min="1" value="4"><br>
     <label for="num-m2">Number of Managers of Managers:</label>
-    <input type="number" id="num-m2" min="1" value="1"><br>
+    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m2" min="1" value="1"><br>
     <label for="num-m0">Number of Directors (Fixed to 1 for now):</label>
     <input type="number" id="num-m3" min="1" max="1" value="1"><br>
     <button id="increment-ic-btn">Increment IC</button>
@@ -116,13 +116,13 @@
     <br>
     <h2>Branching Conditions</h2>
     <label for="min-branch-ic">Minimum Branching Factor for ICs with reports:</label>
-    <input type="number" id="min-branch-ic" min="1" value="3"><br>
+    <input type="number" id="min-branch-ic" onkeydown="runSomething()" oninput="runSomething()" min="1" value="3"><br>
     <label for="max-branch-ic">Maximum Branching Factor for ICs with reports:</label>
-    <input type="number" id="max-branch-ic" min="1" value="5"><br>
+    <input type="number" id="max-branch-ic" onkeydown="runSomething()" oninput="runSomething()" min="1" value="5"><br>
     <label for="min-branch-m">Minimum Branching Factor for Managers:</label>
-    <input type="number" id="min-branch-m" min="1" value="6"><br>
+    <input type="number" id="min-branch-m" onkeydown="runSomething()" oninput="runSomething()" min="1" value="6"><br>
     <label for="max-branch-m">Maximum Branching Factor for Managers:</label>
-    <input type="number" id="max-branch-m" min="1" value="12"><br>
+    <input type="number" id="max-branch-m" onkeydown="runSomething()" oninput="runSomething()" min="1" value="20"><br>
     <br>
 
     <canvas id="graph" width="3000" height="1000"></canvas>
