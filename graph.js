@@ -270,7 +270,7 @@ function redraw() {
     ctx.fillStyle = node.color;
     ctx.fill();
 
-    ctx.font = '7pt Calibri';
+    ctx.font = '8pt Calibri';
     ctx.fillStyle = "black";
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
