@@ -30,7 +30,7 @@ function generateGraph(numIcs, numM0, numM1, numM2, numM3, minBranchM0, maxBranc
     var m0_label = `m0_${i}(${reports})`;
     var m0_node = {
         x: 20+i*50,
-        y: 200,
+        y: 600,
         label: m0_label,
         color: nodeColor
       };
@@ -39,7 +39,7 @@ function generateGraph(numIcs, numM0, numM1, numM2, numM3, minBranchM0, maxBranc
         var ic_label = `ic_${ic_index}`;
         var node = {
           x: 20+ic_index*50,
-          y: 40,
+          y: 800,
           label: ic_label,
           color: nodeColor
         };
@@ -88,7 +88,7 @@ function generateGraph(numIcs, numM0, numM1, numM2, numM3, minBranchM0, maxBranc
       var ic_label = `ic_${ic_index}`;
       var node = {
         x: 20+(ic2_offset)*50,
-        y: 200,
+        y: 600,
         label: ic_label,
         color: nodeColor
       };
@@ -157,7 +157,7 @@ function generateGraph(numIcs, numM0, numM1, numM2, numM3, minBranchM0, maxBranc
     var m2_label = `m2_${j}(${reports})`;
     var m2_node = {
         x: 20+j*50,
-        y: 600,
+        y: 200,
         label: m2_label,
         color: nodeColor
       };
@@ -176,7 +176,7 @@ function generateGraph(numIcs, numM0, numM1, numM2, numM3, minBranchM0, maxBranc
     var m3_label = `m3_${j}(${reports})`;
     var m3_node = {
         x: 20+j*50,
-        y: 800,
+        y: 40,
         label: m3_label,
         color: nodeColor
       };
@@ -201,7 +201,7 @@ function generateGraph(numIcs, numM0, numM1, numM2, numM3, minBranchM0, maxBranc
       var ic_label = `ic_${ic_index}`;
       var node = {
         x: 20+(ic4_offset)*50,
-        y: 600,
+        y: 200,
         label: ic_label,
         color: nodeColor
       };
