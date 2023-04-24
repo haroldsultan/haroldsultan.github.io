@@ -15,8 +15,8 @@
       <li><b>IC</b>: Individual Contributor</li>
       <li><b>IC with Reports</b>: A composite role mixing some IC work with some Management</li>
       <li><b>Manager</b>: A supervisor for ICs and ICs with Reports</li>
-      <li><b>Manager of Managers</b>: A supervisor whose reports include a Manager</li>
-      <li><b>Director</b>: A supervisor whose reports include a Manager of Managers</li>
+      <li><b>Manager of Managers / Director </b>: A supervisor whose reports include a Manager</li>
+      <li><b>Director / VP</b>: A supervisor whose reports include a Manager of Managers</li>
     </ul>
     <div>Building a balanced Org is like building a balanced tree.  In the canvas below is a random org structure statisfying the specified configuration.</div>
     <div>As a thought exercise: begin with the default org below and continue to increment ICs until the org no longer works.  Then start promoting ICs to IC with reports, or promote ICs with reports to managers, and org balance can be restored, allowing for continued hiring...</div>
@@ -37,9 +37,9 @@
     <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m0" min="0" value="3"><br>
     <label for="num-m1">Number of Managers:</label>
     <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m1" min="1" value="4"><br>
-    <label for="num-m2">Number of Managers of Managers:</label>
+    <label for="num-m2">Number of Managers of Managers/Directors:</label>
     <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m2" min="1" value="1"><br>
-    <label for="num-m0">Number of Directors (Fixed to 1 for now):</label>
+    <label for="num-m0">Number of VPs/Directors (Fixed to 1 for now):</label>
     <input type="number" id="num-m3" min="1" max="1" value="1"><br>
     <button id="increment-ic-btn">Increment IC</button>
     <button id="decrement-ic-btn">Decrement IC</button>
