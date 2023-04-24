@@ -284,7 +284,7 @@ function showError(message) {
   ctx.fillStyle = "black";
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(message, 400,400);
+  ctx.fillText(message, 200,200);
 }
 
 // Add event listeners to buttons
@@ -313,7 +313,7 @@ document.getElementById('draw-graph-button').addEventListener('click', function(
      }
    }
    if (tries == max_tries){
-     var message = `Could not produce a valid org tree within ${tries} attempts`;
+     var message = `Could not produce a valid org tree`;
      showError(message);
     //  throw new Error();
    }
