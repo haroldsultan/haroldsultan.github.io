@@ -10,6 +10,7 @@
   </head>
   <body>
     <h1>Org Chart Visualizer</h1>
+    <h3>Building a balanced Org is like building a balanced tree.  Happy Building :)</h3>
     <h2>Positions Breakdown</h2>
     <label for="num-ics">Number of ICs:</label>
     <input type="number" id="num-ics" min="1" value="60"><br>
@@ -89,6 +90,7 @@
         ic_input.value = current_ic;
         drawGraphButton.click();
       });
+      window.onload = () => drawGraphButton.click();
     </script>
     <br>
     <h2>Branching Conditions</h2>
