@@ -52,6 +52,14 @@
         <button onclick="drawHeatmap()">Update Graph</button>
     </div>
     <canvas id="heatmap" width="1000" height="500"></canvas>
+    <div class="csv-upload">
+        <label for="csv-file">Upload CSV:</label>
+        <input type="file" id="csv-file" accept=".csv"><br>
+        <button onclick="uploadCSV()">Upload</button>
+    </div>
+    <div class="csv-download">
+        <button onclick="downloadCSV()">Download Current SEVs as CSV</button>
+    </div>
     <div class="key">
         <h3>Severity Key:</h3>
         <div><span style="background-color: rgba(255, 0, 0, 0.5);"></span>Severity 0</div>
@@ -82,7 +90,7 @@
 
         function drawHeatmap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             let startTime, endTime;
 
             const graphStartDateInput = document.getElementById('graph-start-date').value;
@@ -150,6 +158,48 @@
             if (combinedSeverity >= 0.2) return 'rgba(0, 0, 255, 0.5)'; // Blue
             return 'rgba(0, 0, 0, 0.5)'; // Black
         }
+
+        function uploadCSV() {
+          const fileInput = document.getElementById('csv-file');
+          const file = fileInput.files[0];
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              const text = e.target.result;
+              const lines = text.split('\n');
+              const header = lines[0].split(',');
+              if (header[0].trim() !== 'sev_start' || header[1].trim() !== 'sev_end' || header[2].trim() !== 'severity') {
+                  alert('Invalid CSV format');
+                  return;
+              }
+              for (let i = 1; i < lines.length; i++) {
+                  const line = lines[i].trim();
+                  if (line) {
+                      const [sev_start, sev_end, severity] = line.split(',');
+                      SEVs.push({
+                          level: severity.trim(),
+                          startDate: new Date(sev_start.trim()),
+                          endDate: new Date(sev_end.trim())
+                      });
+                  }
+              }
+              drawHeatmap();
+          };
+          reader.readAsText(file);
+        }
+
+        function downloadCSV() {
+          const csvContent = 'sev_start,sev_end,severity\n' +
+              SEVs.map(sev => `${sev.startDate.toISOString().split('T')[0]},${sev.endDate.toISOString().split('T')[0]},${sev.level}`).join('\n');
+          const blob = new Blob([csvContent], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'sev_data.csv';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+      }
 
         window.onload = function() {
             const now = new Date();
