@@ -31,22 +31,29 @@
         .csv-upload, .csv-download {
             margin-top: 10px; /* Adjust the margin as needed */
         }
+        .csv-upload label {
+            display: inline-block;
+            margin-bottom: 5px; /* Optional: Adjust margin as needed */
+        }
+
+        .csv-upload input[type="file"],
+        .csv-upload button {
+          vertical-align: middle;
+          margin-left: 5px; /* Optional: Adjust margin as needed */
+        }
     </style>
 </head>
 <body>
     <h1>SEV Saturation Visualizer</h1>
-    <p>A SEV, Site Event, refers to an unexpected incident or occurrence that can impact projects or features across a company, affecting usability or safety for customers. These events can range from minor disruptions to major accidents or emergencies, often requiring immediate attention and action to mitigate any negative effects.</p>
-    <p>Managing ongoing SEVs incurs an engineering maintenance cost on a team. This visualizer and index tooling are designed to help capture this cost. The measure, SEV Saturation Index (SSI), is a coarse metric intended to capture the maintenance burden that an engineering team faces in responding to SEVs over a period of time.</p>
-    <p>This site helps vidualise and compute this index for engineering team's</p>
-    <br>
+    <p>A SEV (Site Event) refers to an unexpected incident or occurrence that can impact projects or features across a company, affecting usability or safety for customers. These events can range from minor disruptions to major accidents or emergencies, often requiring immediate attention and action to mitigate any negative effects.</p>
+    <p>Managing ongoing SEVs incurs an engineering maintenance cost on a team. This visualizer and indexing tool are designed to help capture this cost. The measure, SEV Saturation Index (SSI), is a coarse metric intended to capture the maintenance burden that an engineering team faces in responding to SEVs over a period of time.</p>
     <p>The SEV Saturation Index, or SSI, is defined as follows:</p>
     <p style="text-align:center;">
-      <img src="https://latex.codecogs.com/svg.latex?\large\text{SSI}=\frac{\sum_{i=0}^{4}(\text{days\ with\ open\ SEV}_i)\times(5-i)}{\text{team\ size}\times\text{num\_days} \times \text{5}}">
+      <img src="https://latex.codecogs.com/svg.latex?\large\text{SSI}=\frac{\sum_{i=0}^{4}(\text{days with open SEV}_i)\times(5-i)}{\text{team size}\times\text{num\_days}\times 5}">
     </p>
-
-    <p>Mileage will vary on a team by team basis, but the scaling is such that 0 represents no SEV saturation, and 1.0 would represent "Full" Saturation. Note there is technically no max to the metric value so supersaturation is possible.</p>
-    <br>
-    <h4>Team size</h4>
+    <p>Mileage will vary on a team-by-team basis, but the scaling is such that 0 represents no SEV saturation, and 1.0 would represent "Full" Saturation. Note that there is technically no maximum value for the metric, so supersaturation is possible.</p>
+    <p>Notes: There are multiple options for `sev_start` and `sev_end`. Since we are interested in capturing the maintenance burden of SEVs, the recommendation for `sev_start` is biased toward using the time the SEV was created rather than when the incident started, and similarly for `sev_end`, bias is toward using a resolved or mitigated date.</p>
+    <h3>Team size</h3>
     <div>
       <label for="team-size">Team Size :</label>
       <input type="number" id="team-size" min="1" value="6">
@@ -55,17 +62,23 @@
     <h3>Add SEVs</h3>
     <div class="csv-upload">
       <label for="csv-file">Upload CSV:</label>
-      <input type="file" id="csv-file" accept=".csv"><br>
+      <input type="file" id="csv-file" accept=".csv">
       <button onclick="uploadCSV()">Upload</button>
-     <p>Manually add a SEV</p>
-     <div class="sev-entry">
+      <br>
+      <div>
+        <text>Just testing, add a random SEV </text>
+        <button onclick="addRandomSEV()">Add Random SEV</button>
+      </div>
+      <br>
+      <div class="sev-entry">
+        <text>Manually add a SEV</text>
         <label for="sev-level">Severity Level:</label>
         <select id="sev-level">
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
         </select><br>
         <label for="start-date">Start Date:</label>
         <input type="date" id="start-date"><br>
@@ -74,7 +87,7 @@
         <button onclick="addSEV()">Add SEV</button>
       </div>
     </div>
-    <h4>SEV Saturation limit</h4>
+    <h3>SEV Saturation limit</h3>
     <div>
       <label for="max-severity">Max Saturation:</label>
       <input type="number" id="max-severity" min="0">
@@ -89,22 +102,22 @@
         <input type="date" id="graph-end-date"><br>
         <button onclick="drawHeatmap()">Update Visualization Range</button>
     </div>
-    <canvas id="heatmap" width="1000" height="200"></canvas>
+    <canvas id="heatmap" width="1000" height="150"></canvas>
     <div class="csv-download">
         <button onclick="downloadCSV()">Download Current SEVs as CSV</button>
     </div>
     <div class="key">
         <h3>Severity Saturation level:</h3>
-        <div><span style="background-color: rgba(255, 0, 0, 0.5);"></span>100% Saturation</div>
-        <div><span style="background-color: rgba(255, 165, 0, 0.5);"></span>80% Saturation</div>
-        <div><span style="background-color: rgba(255, 255, 0, 0.5);"></span>60% Saturation</div>
-        <div><span style="background-color: rgba(154, 205, 50, 0.5);"></span>50% Saturation</div>
-        <div><span style="background-color: rgba(0, 128, 0, 0.5);"></span>40% Saturation</div>
-        <div><span style="background-color: rgba(0, 255, 255, 0.5);"></span>30% Saturation</div>
-        <div><span style="background-color: rgba(0, 191, 255, 0.5);"></span>20% Saturation</div>
-        <div><span style="background-color: rgba(30, 144, 255, 0.5);"></span>10% Saturation</div>
-        <div><span style="background-color: rgba(138, 43, 226, 0.5);"></span>5% Saturation</div>
-        <div><span></span>0% Saturation (Clear)</div>
+        <div><span style="background-color: rgba(255, 0, 0, 0.5);"></span>>=90% Saturation</div>
+        <div><span style="background-color: rgba(255, 165, 0, 0.5);"></span>>=80% Saturation</div>
+        <div><span style="background-color: rgba(255, 255, 0, 0.5);"></span>>=70% Saturation</div>
+        <div><span style="background-color: rgba(154, 205, 50, 0.5);"></span>>=60% Saturation</div>
+        <div><span style="background-color: rgba(0, 128, 0, 0.5);"></span>>=50% Saturation</div>
+        <div><span style="background-color: rgba(0, 255, 255, 0.5);"></span>>=40% Saturation</div>
+        <div><span style="background-color: rgba(0, 191, 255, 0.5);"></span>>=30% Saturation</div>
+        <div><span style="background-color: rgba(30, 144, 255, 0.5);"></span>>=20% Saturation</div>
+        <div><span style="background-color: rgba(138, 43, 226, 0.5);"></span>>=10% Saturation</div>
+        <div><span></span><10% Saturation (Clear)</div>
       </div>
       <br>
       <div>
@@ -150,7 +163,6 @@
 
         function buildSeverityMap(){
           let severityMap = new Map(); // Map to track cumulative severity per date
-
           // Populate severityMap with cumulative severity for each date
           SEVs.forEach(sev => {
               const startDate = sev.startDate;
@@ -174,6 +186,43 @@
           return severityMap;
         }
 
+        function getRandomInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Function to generate random SEV data
+        function addRandomSEV() {
+            var levels = ["0", "1", "2", "3", "4"];
+            let startTimestamp, endTimestamp;
+
+            const graphStartDateInput = document.getElementById('graph-start-date').value;
+            const graphEndDateInput = document.getElementById('graph-end-date').value;
+
+            if (graphStartDateInput && graphEndDateInput) {
+                startTimestamp = new Date(graphStartDateInput).getTime();
+                endTimestamp = new Date(graphEndDateInput).getTime();
+            } else {
+                const now = new Date();
+                startTimestamp = new Date(now - 180 * 24 * 60 * 60 * 1000).getTime();
+                endTimestamp = now.getTime();
+            }
+
+            var randomTimestamp1 = startTimestamp + Math.random() * (endTimestamp - startTimestamp);
+            var randomDate1 = new Date(randomTimestamp1);
+
+            var randomTimestamp2 = randomTimestamp1 + getRandomInt(2, 14) * 24 * 60 * 60 * 1000;
+            var randomDate2 = new Date(randomTimestamp2);
+
+            var newSEV = {
+                level: levels[getRandomInt(0, levels.length - 1)],
+                startDate: randomDate1,
+                endDate: randomDate2,
+            };
+
+            SEVs.push(newSEV); // Add the new SEV to the SEVs array
+            drawHeatmap(); // Update the table with the new SEV data
+        }
+
         function setMaxSeverity(severityMap){
           // Find the maximum cumulative severity across all dates
           if (maxSeverityDynamic) {
@@ -186,6 +235,7 @@
         }
 
         function drawHeatmap() {
+          console.log(SEVs);
           const canvas = document.getElementById('heatmap');
           const ctx = canvas.getContext('2d');
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -348,8 +398,10 @@
                   if (line) {
                       const [sev_start, sev_end, severity] = line.split(',');
                       const startDate = new Date(sev_start.trim());
-                      const endDate = new Date(sev_end.trim());
-
+                      let endDate = new Date(sev_end.trim());
+                      if (isNaN(endDate.getTime())) {
+                        endDate = new Date();
+                      }
                       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
                           alert(`Invalid date format in line ${i + 1}. Dates must be in YYYY-MM-DD format.`);
                           return;
