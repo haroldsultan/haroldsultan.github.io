@@ -5,9 +5,25 @@
     <style>
         canvas {
             border: 1px solid black;
+            display: block;
+            margin-top: 20px;
         }
         .sev-entry {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .key {
+            margin-top: 20px;
+        }
+        .key div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .key span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -23,12 +39,27 @@
             <option value="4">4</option>
         </select><br>
         <label for="start-date">Start Date:</label>
-        <input type="datetime-local" id="start-date"><br>
+        <input type="date" id="start-date"><br>
         <label for="end-date">End Date:</label>
-        <input type="datetime-local" id="end-date"><br>
+        <input type="date" id="end-date"><br>
         <button onclick="addSEV()">Add SEV</button>
     </div>
+    <div class="date-range">
+        <label for="graph-start-date">Graph Start Date:</label>
+        <input type="date" id="graph-start-date"><br>
+        <label for="graph-end-date">Graph End Date:</label>
+        <input type="date" id="graph-end-date"><br>
+        <button onclick="drawHeatmap()">Update Graph</button>
+    </div>
     <canvas id="heatmap" width="1000" height="500"></canvas>
+    <div class="key">
+        <h3>Severity Key:</h3>
+        <div><span style="background-color: rgba(255, 0, 0, 0.5);"></span>Severity 0</div>
+        <div><span style="background-color: rgba(255, 165, 0, 0.5);"></span>Severity 1</div>
+        <div><span style="background-color: rgba(255, 255, 0, 0.5);"></span>Severity 2</div>
+        <div><span style="background-color: rgba(0, 255, 0, 0.5);"></span>Severity 3</div>
+        <div><span style="background-color: rgba(0, 0, 255, 0.5);"></span>Severity 4</div>
+    </div>
     <script>
         const SEVs = [];
         const canvas = document.getElementById('heatmap');
@@ -50,20 +81,50 @@
 
         function drawHeatmap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let startTime, endTime;
 
-            const now = new Date();
-            const startTime = SEVs.length > 0 ? Math.min(...SEVs.map(sev => sev.startDate)) : now;
-            const endTime = SEVs.length > 0 ? Math.max(...SEVs.map(sev => sev.endDate)) : now;
+            const graphStartDateInput = document.getElementById('graph-start-date').value;
+            const graphEndDateInput = document.getElementById('graph-end-date').value;
+
+            if (graphStartDateInput && graphEndDateInput) {
+                startTime = new Date(graphStartDateInput);
+                endTime = new Date(graphEndDateInput);
+            } else {
+                const now = new Date();
+                startTime = new Date(now - 90 * 24 * 60 * 60 * 1000);
+                endTime = now;
+            }
 
             const timeSpan = endTime - startTime;
+            const rowHeight = canvas.height / 5;
 
             SEVs.forEach(sev => {
                 const xStart = ((sev.startDate - startTime) / timeSpan) * canvas.width;
                 const xEnd = ((sev.endDate - startTime) / timeSpan) * canvas.width;
                 const color = getColorBySeverity(sev.level);
                 ctx.fillStyle = color;
-                ctx.fillRect(xStart, 0, xEnd - xStart, canvas.height);
+                ctx.fillRect(xStart, sev.level * rowHeight, xEnd - xStart, rowHeight);
             });
+
+            drawXAxis(startTime, endTime);
+        }
+
+        function drawXAxis(startTime, endTime) {
+            ctx.fillStyle = "black";
+            ctx.font = "12px Arial";
+            const timeSpan = endTime - startTime;
+            const numDivisions = 10;
+            for (let i = 0; i <= numDivisions; i++) {
+                const x = (i / numDivisions) * canvas.width;
+                const date = new Date(startTime.getTime() + (i / numDivisions) * timeSpan);
+                const dateStr = date.toISOString().split('T')[0];
+                ctx.fillText(dateStr, x, canvas.height - 10);
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height - 20);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
         }
 
         function getColorBySeverity(level) {
@@ -75,6 +136,13 @@
                 case '4': return 'rgba(0, 0, 255, 0.5)'; // Blue
                 default: return 'rgba(0, 0, 0, 0.5)'; // Black
             }
+        }
+
+        window.onload = function() {
+            const now = new Date();
+            document.getElementById('graph-start-date').value = new Date(now - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            document.getElementById('graph-end-date').value = now.toISOString().split('T')[0];
+            drawHeatmap();
         }
     </script>
 </body>
