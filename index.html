@@ -1,131 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Org Chart Visualizer</title>
-    <style>
-      canvas {
-        background-color:#f2f7ca;
-      }
-    </style>
+    <title>Welcome to some proof of concept engineering based visualization project</title>
   </head>
   <body>
-    <h1>Org Chart Visualizer</h1>
-    <div>Every org will differ, as will names of roles, expectation of roles, expectations for the number of levels, etc...  The following will help visualze a hypothetical org on the order of 60-200 people.</div>
+    <h1>Other links</h1>
     <ul>
-      <li><b>IC</b>: Individual Contributor</li>
-      <li><b>IC with Reports</b>: A composite role mixing some IC work with some Management</li>
-      <li><b>Manager</b>: A supervisor for ICs and ICs with Reports</li>
-      <li><b>Manager of Managers / Director </b>: A supervisor whose reports include a Manager</li>
-      <li><b>Director / VP</b>: A supervisor whose reports include a Manager of Managers</li>
+      <li><a href="sev-saturation.html">Go to SEV Saturation Visualizer</a></li>
+      <li><a href="org-chart.html">Go to Org Chart Visualizer</a></li>
     </ul>
-    <div>Building a balanced Org is like building a balanced tree.  In the canvas below is a random org structure statisfying the specified configuration.</div>
-    <div>As a thought exercise: begin with the default org below and continue to increment ICs until the org no longer works.  Then start promoting ICs to IC with reports, or promote ICs with reports to managers, and org balance can be restored, allowing for continued hiring...</div>
-    <div>Happy Building!</div>
-    <button id="draw-graph-button">Attempt to draw graph</button>
-    <button id="reset-button">Reset</button>
-
-    <script>
-      function runSomething() {
-        const drawGraphButton = document.getElementById('draw-graph-button');
-        drawGraphButton.click();
-      }
-    </script>
-    <h2>Positions Breakdown</h2>
-    <label for="num-ics">Number of ICs:</label>
-    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-ics" min="1" value="60"><br>
-    <label for="num-m0">Number of ICs with Reports:</label>
-    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m0" min="0" value="3"><br>
-    <label for="num-m1">Number of Managers:</label>
-    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m1" min="1" value="4"><br>
-    <label for="num-m2">Number of Managers of Managers/Directors:</label>
-    <input type="number" onkeydown="runSomething()" oninput="runSomething()" id="num-m2" min="1" value="1"><br>
-    <label for="num-m0">Number of VPs/Directors (Fixed to 1 for now):</label>
-    <input type="number" id="num-m3" min="1" max="1" value="1"><br>
-    <button id="increment-ic-btn">Increment IC</button>
-    <button id="decrement-ic-btn">Decrement IC</button>
-    <button id="ic-to_ic_with_reports-btn">IC -> IC with reports</button>
-    <button id="ic_with_reports_to_m-btn">IC with report -> Manager</button>
-    <button id="m_to_m2-btn">Manager -> Manager of Managers</button>
-
-    <script>
-      const ic_input = document.getElementById('num-ics');
-      const m0_input = document.getElementById('num-m0');
-      const m1_input = document.getElementById('num-m1');
-      const m2_input = document.getElementById('num-m2');
-
-      const incrementBtn = document.getElementById('increment-ic-btn');
-      const decrementBtn = document.getElementById('decrement-ic-btn');
-      const icToM0Btn = document.getElementById('ic-to_ic_with_reports-btn');
-      const m0toM1Btn = document.getElementById('ic_with_reports_to_m-btn');
-      const m1toM2Btn = document.getElementById('m_to_m2-btn');
-      const drawGraphButton = document.getElementById('draw-graph-button');
-      drawGraphButton.click()
-      icToM0Btn.addEventListener('click', () => {
-        let current_ic = parseInt(ic_input.value);
-        let current_m0 = parseInt(m0_input.value);
-
-        current_ic--;
-        ic_input.value = current_ic;
-        current_m0++;
-        m0_input.value = current_m0;
-        drawGraphButton.click();
-      });
-
-      m0toM1Btn.addEventListener('click', () => {
-        let current_m0 = parseInt(m0_input.value);
-        let current_m1 = parseInt(m1_input.value);
-        if (current_m0 > 1){
-          current_m0--;
-          m0_input.value = current_m0;
-          current_m1++;
-          m1_input.value = current_m1;
-          drawGraphButton.click();
-        }
-      });
-
-      m1toM2Btn.addEventListener('click', () => {
-        let current_m1 = parseInt(m1_input.value);
-        let current_m2 = parseInt(m2_input.value);
-
-        if (current_m1 > 1){
-          current_m1--;
-          m1_input.value = current_m1;
-          current_m2++;
-          m2_input.value = current_m2;
-          drawGraphButton.click();
-        }
-      });
-
-      incrementBtn.addEventListener('click', () => {
-        let current_ic = parseInt(ic_input.value);
-        current_ic++;
-        ic_input.value = current_ic;
-        drawGraphButton.click();
-      });
-
-      decrementBtn.addEventListener('click', () => {
-        let current_ic = parseInt(ic_input.value);
-        if (current_ic > 1){
-          current_ic--;
-          ic_input.value = current_ic;
-          drawGraphButton.click();
-        }
-      });
-      window.onload = () => drawGraphButton.click();
-    </script>
-    <br>
-    <h2>Branching Conditions</h2>
-    <label for="min-branch-ic">Minimum Branching Factor for ICs with reports:</label>
-    <input type="number" id="min-branch-ic" onkeydown="runSomething()" oninput="runSomething()" min="1" value="3"><br>
-    <label for="max-branch-ic">Maximum Branching Factor for ICs with reports:</label>
-    <input type="number" id="max-branch-ic" onkeydown="runSomething()" oninput="runSomething()" min="1" value="5"><br>
-    <label for="min-branch-m">Minimum Branching Factor for Managers:</label>
-    <input type="number" id="min-branch-m" onkeydown="runSomething()" oninput="runSomething()" min="1" value="6"><br>
-    <label for="max-branch-m">Maximum Branching Factor for Managers:</label>
-    <input type="number" id="max-branch-m" onkeydown="runSomething()" oninput="runSomething()" min="1" value="12"><br>
-    <br>
-
-    <canvas id="graph" width="3000" height="1000"></canvas>
-    <script src="graph.js"></script>
   </body>
 </html>
