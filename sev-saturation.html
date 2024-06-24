@@ -25,10 +25,25 @@
             height: 20px;
             margin-right: 10px;
         }
+        .button-container {
+            margin-top: 10px; /* Adjust the margin as needed */
+        }
+        .csv-upload, .csv-download {
+            margin-top: 10px; /* Adjust the margin as needed */
+        }
     </style>
 </head>
 <body>
     <h1>SEV Saturation Visualizer</h1>
+    <h3>Clear SEVs</h3>
+    <button onclick="clearSEVs()">Clear All SEVs</button>
+    <h3>Add SEVs</h3>
+    <div class="csv-upload">
+      <label for="csv-file">Upload CSV:</label>
+      <input type="file" id="csv-file" accept=".csv"><br>
+      <button onclick="uploadCSV()">Upload</button>
+    </div>
+    <h4>Manually add a SEV</h4>
     <div class="sev-entry">
         <label for="sev-level">Severity Level:</label>
         <select id="sev-level">
@@ -44,35 +59,44 @@
         <input type="date" id="end-date"><br>
         <button onclick="addSEV()">Add SEV</button>
     </div>
+    <h4>SEV Saturation limit</h4>
+    <div>
+      <text>Team's max saturation.  The maximum capacity the team has for SEVs on the following scale, SEV 0 = 5, SEV1 = 4,... SEV4 = 1, and where overlapping SEVs are additive.  Clearing will allow data to determine the maximum </text>
+      <br>
+      <label for="max-severity">Max Saturation:</label>
+      <input type="number" id="max-severity" min="0">
+      <button onclick="updateMaxSeverity()">Apply</button>
+      <button onclick="clearMaxSeverity()">Clear</button>
+    </div>
+    <h3>Adjust chart range</h3>
     <div class="date-range">
         <label for="graph-start-date">Graph Start Date:</label>
         <input type="date" id="graph-start-date"><br>
         <label for="graph-end-date">Graph End Date:</label>
         <input type="date" id="graph-end-date"><br>
-        <button onclick="drawHeatmap()">Update Graph</button>
+        <button onclick="drawHeatmap()">Update Visualization Range</button>
     </div>
-    <canvas id="heatmap" width="1000" height="500"></canvas>
-    <div class="csv-upload">
-        <label for="csv-file">Upload CSV:</label>
-        <input type="file" id="csv-file" accept=".csv"><br>
-        <button onclick="uploadCSV()">Upload</button>
-    </div>
+    <canvas id="heatmap" width="1000" height="300"></canvas>
     <div class="csv-download">
         <button onclick="downloadCSV()">Download Current SEVs as CSV</button>
     </div>
     <div class="key">
-        <h3>Severity Key:</h3>
-        <div><span style="background-color: rgba(255, 0, 0, 0.5);"></span>Severity 0</div>
-        <div><span style="background-color: rgba(255, 165, 0, 0.5);"></span>Severity 1</div>
-        <div><span style="background-color: rgba(255, 255, 0, 0.5);"></span>Severity 2</div>
-        <div><span style="background-color: rgba(0, 255, 0, 0.5);"></span>Severity 3</div>
-        <div><span style="background-color: rgba(0, 0, 255, 0.5);"></span>Severity 4</div>
-    </div>
+        <h3>Severity Saturation level:</h3>
+        <div><span style="background-color: rgba(255, 0, 0, 0.5);"></span>100% Saturation</div>
+        <div><span style="background-color: rgba(255, 165, 0, 0.5);"></span>80% Saturation</div>
+        <div><span style="background-color: rgba(255, 255, 0, 0.5);"></span>60% Saturation</div>
+        <div><span style="background-color: rgba(154, 205, 50, 0.5);"></span>50% Saturation</div>
+        <div><span style="background-color: rgba(0, 128, 0, 0.5);"></span>40% Saturation</div>
+        <div><span style="background-color: rgba(0, 255, 255, 0.5);"></span>30% Saturation</div>
+        <div><span style="background-color: rgba(0, 191, 255, 0.5);"></span>20% Saturation</div>
+        <div><span style="background-color: rgba(30, 144, 255, 0.5);"></span>10% Saturation</div>
+        <div><span style="background-color: rgba(138, 43, 226, 0.5);"></span>5% Saturation</div>
+        <div><span></span>0% Saturation (Clear)</div>
+      </div>
     <script>
         const SEVs = [];
         const canvas = document.getElementById('heatmap');
         const ctx = canvas.getContext('2d');
-        const severityHeights = [1, 0.8, 0.6, 0.4, 0.2]; // Heights for SEV 0 to SEV 4
 
         function addSEV() {
             const level = document.getElementById('sev-level').value;
@@ -87,50 +111,120 @@
             SEVs.push({ level, startDate, endDate });
             drawHeatmap();
         }
+        let maxSeverityDynamic = true
+        let maxSeverity = 10; // Default value
 
         function drawHeatmap() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const canvas = document.getElementById('heatmap');
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          let startTime, endTime;
 
-            let startTime, endTime;
+          const graphStartDateInput = document.getElementById('graph-start-date').value;
+          const graphEndDateInput = document.getElementById('graph-end-date').value;
 
-            const graphStartDateInput = document.getElementById('graph-start-date').value;
-            const graphEndDateInput = document.getElementById('graph-end-date').value;
+          if (graphStartDateInput && graphEndDateInput) {
+              startTime = new Date(graphStartDateInput);
+              endTime = new Date(graphEndDateInput);
+          } else {
+              const now = new Date();
+              startTime = new Date(now - 90 * 24 * 60 * 60 * 1000);
+              endTime = now;
+          }
+          const timeSpan = endTime.getTime() - startTime.getTime();
 
-            if (graphStartDateInput && graphEndDateInput) {
-                startTime = new Date(graphStartDateInput);
-                endTime = new Date(graphEndDateInput);
-            } else {
-                const now = new Date();
-                startTime = new Date(now - 90 * 24 * 60 * 60 * 1000);
-                endTime = now;
-            }
+          let severityMap = new Map(); // Map to track cumulative severity per date
 
-            const timeSpan = endTime - startTime;
+          // Populate severityMap with cumulative severity for each date
+          SEVs.forEach(sev => {
+              const startDate = sev.startDate;
+              const endDate = sev.endDate;
+              const severityLevel = parseInt(sev.level);
 
-            // Initialize a buffer for each pixel on the x-axis to keep track of combined severity levels
-            const buffer = Array(canvas.width).fill(0);
+              // Iterate through each date within the SEV range
+              for (let date = startDate.getTime(); date <= endDate.getTime(); date += 24 * 60 * 60 * 1000) {
+                  const currentDate = new Date(date);
+                  const dateString = currentDate.toISOString().split('T')[0]; // Get YYYY-MM-DD format
 
-            SEVs.forEach(sev => {
-                const xStart = Math.floor(((sev.startDate - startTime) / timeSpan) * canvas.width);
-                const xEnd = Math.ceil(((sev.endDate - startTime) / timeSpan) * canvas.width);
-                const severityLevel = parseInt(sev.level);
+                  // Initialize cumulative severity for this date if not already initialized
+                  if (!severityMap.has(dateString)) {
+                      severityMap.set(dateString, 0);
+                  }
 
-                for (let x = xStart; x < xEnd; x++) {
-                    if (x >= 0 && x < canvas.width) {
-                        buffer[x] += severityHeights[severityLevel];
-                    }
+                  // Add current SEV's severity level to cumulative severity for this date
+                  severityMap.set(dateString, severityMap.get(dateString) + severityLevel);
+              }
+          });
+
+          // Find the maximum cumulative severity across all dates
+          if (maxSeverityDynamic) {
+            severityMap.forEach(severity => {
+              if (severity > maxSeverity) {
+                  maxSeverity = severity;
+              }
+            })
+          };
+
+            // Draw the heatmap based on severityMap
+            severityMap.forEach((cumulativeSeverity, dateString) => {
+                const currentDate = new Date(dateString);
+                const xStart = Math.floor(((currentDate - startTime) / timeSpan) * canvas.width);
+
+                // Calculate width of the segment based on time span
+                let width;
+                if (severityMap.size === 1) {
+                    width = canvas.width;
+                } else {
+                    const nextDate = new Date(currentDate);
+                    nextDate.setDate(nextDate.getDate() + 1);
+                    const xEnd = Math.ceil(((nextDate - startTime) / timeSpan) * canvas.width);
+                    width = xEnd - xStart;
                 }
+
+                // Calculate severity ratio relative to maxSeverity
+                const severityRatio = cumulativeSeverity / maxSeverity;
+                // Draw segment on canvas
+                const color = getColorByCombinedSeverity(severityRatio);
+                ctx.fillStyle = color;
+                ctx.fillRect(xStart, 0, width, canvas.height);
             });
 
-            // Draw the buffer on the canvas
-            for (let x = 0; x < canvas.width; x++) {
-                const height = buffer[x] * canvas.height;
-                const color = getColorByCombinedSeverity(buffer[x]);
-                ctx.fillStyle = color;
-                ctx.fillRect(x, canvas.height - height, 1, height);
-            }
-
             drawXAxis(startTime, endTime);
+        }
+
+        function updateMaxSeverity() {
+           const maxSeverityInput = document.getElementById('max-severity').value;
+           maxSeverity = parseInt(maxSeverityInput);
+           maxSeverityDynamic = false;
+
+           // Redraw the heatmap with updated maxSeverity
+           drawHeatmap();
+        }
+
+        function clearMaxSeverity() {
+           maxSeverityDynamic = true;
+
+           // Redraw the heatmap with updated maxSeverity
+           drawHeatmap();
+        }
+
+        function getColorByCombinedSeverity(severityRatio) {
+          if (severityRatio >= 0.9) return 'rgba(255, 0, 0, 0.5)';     // Red
+          if (severityRatio >= 0.8) return 'rgba(255, 165, 0, 0.5)';   // Orange
+          if (severityRatio >= 0.7) return 'rgba(255, 255, 0, 0.5)';   // Yellow
+          if (severityRatio >= 0.6) return 'rgba(154, 205, 50, 0.5)';  // Yellow-Green
+          if (severityRatio >= 0.5) return 'rgba(0, 128, 0, 0.5)';     // Green
+          if (severityRatio >= 0.4) return 'rgba(0, 255, 255, 0.5)';   // Cyan
+          if (severityRatio >= 0.3) return 'rgba(0, 191, 255, 0.5)';   // Deep Sky Blue
+          if (severityRatio >= 0.2) return 'rgba(30, 144, 255, 0.5)';  // Dodger Blue
+          if (severityRatio >= 0.1) return 'rgba(138, 43, 226, 0.5)';  // Blue-Violet
+          return 'rgba(128, 0, 128, 0)';                             // Clear
+        }
+
+
+        function clearSEVs() {
+            SEVs.length = 0; // Clear the SEVs array
+            drawHeatmap();   // Redraw the heatmap to reflect the cleared SEVs
         }
 
         function drawXAxis(startTime, endTime) {
@@ -150,40 +244,41 @@
             }
         }
 
-        function getColorByCombinedSeverity(combinedSeverity) {
-            if (combinedSeverity >= 1) return 'rgba(255, 0, 0, 0.5)'; // Red
-            if (combinedSeverity >= 0.8) return 'rgba(255, 165, 0, 0.5)'; // Orange
-            if (combinedSeverity >= 0.6) return 'rgba(255, 255, 0, 0.5)'; // Yellow
-            if (combinedSeverity >= 0.4) return 'rgba(0, 255, 0, 0.5)'; // Green
-            if (combinedSeverity >= 0.2) return 'rgba(0, 0, 255, 0.5)'; // Blue
-            return 'rgba(0, 0, 0, 0.5)'; // Black
-        }
-
         function uploadCSV() {
           const fileInput = document.getElementById('csv-file');
           const file = fileInput.files[0];
           const reader = new FileReader();
+
           reader.onload = function(e) {
               const text = e.target.result;
               const lines = text.split('\n');
               const header = lines[0].split(',');
+
               if (header[0].trim() !== 'sev_start' || header[1].trim() !== 'sev_end' || header[2].trim() !== 'severity') {
-                  alert('Invalid CSV format');
+                  alert('Invalid CSV format. Please ensure the CSV file has headers: sev_start, sev_end, severity');
                   return;
               }
+
               for (let i = 1; i < lines.length; i++) {
                   const line = lines[i].trim();
                   if (line) {
                       const [sev_start, sev_end, severity] = line.split(',');
-                      SEVs.push({
-                          level: severity.trim(),
-                          startDate: new Date(sev_start.trim()),
-                          endDate: new Date(sev_end.trim())
-                      });
+                      const startDate = new Date(sev_start.trim());
+                      const endDate = new Date(sev_end.trim());
+
+                      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                          alert(`Invalid date format in line ${i + 1}. Dates must be in YYYY-MM-DD format.`);
+                          return;
+                      }
+
+                      const level = severity.trim();
+                      SEVs.push({ level, startDate, endDate });
                   }
               }
-              drawHeatmap();
+
+              drawHeatmap(); // Redraw the heatmap after uploading SEVs from CSV
           };
+
           reader.readAsText(file);
         }
 
@@ -203,7 +298,7 @@
 
         window.onload = function() {
             const now = new Date();
-            document.getElementById('graph-start-date').value = new Date(now - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            document.getElementById('graph-start-date').value = new Date(now - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
             document.getElementById('graph-end-date').value = now.toISOString().split('T')[0];
             drawHeatmap();
         }
