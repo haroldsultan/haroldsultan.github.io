@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SEV Saturation Visualizer</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        .sev-entry {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SEV Saturation Visualizer</h1>
+    <div class="sev-entry">
+        <label for="sev-level">Severity Level:</label>
+        <select id="sev-level">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select><br>
+        <label for="start-date">Start Date:</label>
+        <input type="datetime-local" id="start-date"><br>
+        <label for="end-date">End Date:</label>
+        <input type="datetime-local" id="end-date"><br>
+        <button onclick="addSEV()">Add SEV</button>
+    </div>
+    <canvas id="heatmap" width="1000" height="500"></canvas>
+    <script>
+        const SEVs = [];
+        const canvas = document.getElementById('heatmap');
+        const ctx = canvas.getContext('2d');
+
+        function addSEV() {
+            const level = document.getElementById('sev-level').value;
+            const startDate = new Date(document.getElementById('start-date').value);
+            const endDate = new Date(document.getElementById('end-date').value);
+
+            if (startDate >= endDate) {
+                alert("Start date must be before end date");
+                return;
+            }
+
+            SEVs.push({ level, startDate, endDate });
+            drawHeatmap();
+        }
+
+        function drawHeatmap() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const now = new Date();
+            const startTime = SEVs.length > 0 ? Math.min(...SEVs.map(sev => sev.startDate)) : now;
+            const endTime = SEVs.length > 0 ? Math.max(...SEVs.map(sev => sev.endDate)) : now;
+
+            const timeSpan = endTime - startTime;
+
+            SEVs.forEach(sev => {
+                const xStart = ((sev.startDate - startTime) / timeSpan) * canvas.width;
+                const xEnd = ((sev.endDate - startTime) / timeSpan) * canvas.width;
+                const color = getColorBySeverity(sev.level);
+                ctx.fillStyle = color;
+                ctx.fillRect(xStart, 0, xEnd - xStart, canvas.height);
+            });
+        }
+
+        function getColorBySeverity(level) {
+            switch (level) {
+                case '0': return 'rgba(255, 0, 0, 0.5)'; // Red
+                case '1': return 'rgba(255, 165, 0, 0.5)'; // Orange
+                case '2': return 'rgba(255, 255, 0, 0.5)'; // Yellow
+                case '3': return 'rgba(0, 255, 0, 0.5)'; // Green
+                case '4': return 'rgba(0, 0, 255, 0.5)'; // Blue
+                default: return 'rgba(0, 0, 0, 0.5)'; // Black
+            }
+        }
+    </script>
+</body>
+</html>
