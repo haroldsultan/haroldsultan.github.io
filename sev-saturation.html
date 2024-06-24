@@ -180,7 +180,7 @@
                   }
 
                   // Add current SEV's severity level to cumulative severity for this date
-                  severityMap.set(dateString, severityMap.get(dateString) + severityLevel);
+                  severityMap.set(dateString, severityMap.get(dateString) + (5-severityLevel));
               }
           });
           return severityMap;
