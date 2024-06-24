@@ -64,6 +64,7 @@
         const SEVs = [];
         const canvas = document.getElementById('heatmap');
         const ctx = canvas.getContext('2d');
+        const severityHeights = [1, 0.8, 0.6, 0.4, 0.2]; // Heights for SEV 0 to SEV 4
 
         function addSEV() {
             const level = document.getElementById('sev-level').value;
@@ -97,15 +98,29 @@
             }
 
             const timeSpan = endTime - startTime;
-            const rowHeight = canvas.height / 5;
+
+            // Initialize a buffer for each pixel on the x-axis to keep track of combined severity levels
+            const buffer = Array(canvas.width).fill(0);
 
             SEVs.forEach(sev => {
-                const xStart = ((sev.startDate - startTime) / timeSpan) * canvas.width;
-                const xEnd = ((sev.endDate - startTime) / timeSpan) * canvas.width;
-                const color = getColorBySeverity(sev.level);
-                ctx.fillStyle = color;
-                ctx.fillRect(xStart, sev.level * rowHeight, xEnd - xStart, rowHeight);
+                const xStart = Math.floor(((sev.startDate - startTime) / timeSpan) * canvas.width);
+                const xEnd = Math.ceil(((sev.endDate - startTime) / timeSpan) * canvas.width);
+                const severityLevel = parseInt(sev.level);
+
+                for (let x = xStart; x < xEnd; x++) {
+                    if (x >= 0 && x < canvas.width) {
+                        buffer[x] += severityHeights[severityLevel];
+                    }
+                }
             });
+
+            // Draw the buffer on the canvas
+            for (let x = 0; x < canvas.width; x++) {
+                const height = buffer[x] * canvas.height;
+                const color = getColorByCombinedSeverity(buffer[x]);
+                ctx.fillStyle = color;
+                ctx.fillRect(x, canvas.height - height, 1, height);
+            }
 
             drawXAxis(startTime, endTime);
         }
@@ -127,15 +142,13 @@
             }
         }
 
-        function getColorBySeverity(level) {
-            switch (level) {
-                case '0': return 'rgba(255, 0, 0, 0.5)'; // Red
-                case '1': return 'rgba(255, 165, 0, 0.5)'; // Orange
-                case '2': return 'rgba(255, 255, 0, 0.5)'; // Yellow
-                case '3': return 'rgba(0, 255, 0, 0.5)'; // Green
-                case '4': return 'rgba(0, 0, 255, 0.5)'; // Blue
-                default: return 'rgba(0, 0, 0, 0.5)'; // Black
-            }
+        function getColorByCombinedSeverity(combinedSeverity) {
+            if (combinedSeverity >= 1) return 'rgba(255, 0, 0, 0.5)'; // Red
+            if (combinedSeverity >= 0.8) return 'rgba(255, 165, 0, 0.5)'; // Orange
+            if (combinedSeverity >= 0.6) return 'rgba(255, 255, 0, 0.5)'; // Yellow
+            if (combinedSeverity >= 0.4) return 'rgba(0, 255, 0, 0.5)'; // Green
+            if (combinedSeverity >= 0.2) return 'rgba(0, 0, 255, 0.5)'; // Blue
+            return 'rgba(0, 0, 0, 0.5)'; // Black
         }
 
         window.onload = function() {
