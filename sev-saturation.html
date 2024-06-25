@@ -426,18 +426,6 @@
         drawHeatmap(); // Update the table with the new SEV data
       }
 
-      function setMaxSeverity(severityMap) {
-        // Find the maximum cumulative severity across all dates
-        if (maxSeverityDynamic) {
-          severityMap.forEach((severity) => {
-            if (severity > maxSeverity) {
-              maxSeverity = severity;
-            }
-          });
-        }
-        updateMaxSaturation(maxSeverity);
-      }
-
       function drawHeatmap() {
         const canvas = document.getElementById("heatmap");
         const ctx = canvas.getContext("2d");
