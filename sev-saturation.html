@@ -280,13 +280,6 @@
         </div>
       </div>
     </div>
-    <h3>SEV Saturation limit</h3>
-    <div>
-      <label for="max-severity">Max Saturation:</label>
-      <input type="number" id="max-severity" min="0" />
-      <button onclick="updateMaxSeverity()">Apply</button>
-      <button onclick="clearMaxSeverity()">Clear</button>
-    </div>
     <br />
     <div>
       <h4>Clear SEVs</h4>
@@ -356,9 +349,8 @@
         SEVs.push({ level, startDate, endDate, uuid });
         drawHeatmap();
       }
-      let maxSeverityDynamic = true;
-      let maxSeverity = defaultMaxSeverity;
       let teamSize = 6; // starting default
+      let maxSeverity = teamSize;
 
       function buildSeverityMap() {
         let severityMap = new Map(); // Map to track cumulative severity per date
@@ -468,7 +460,7 @@
         const timeSpan = endTime.getTime() - startTime.getTime();
 
         let severityMap = buildSeverityMap();
-        setMaxSeverity(severityMap);
+        maxSeverity = parseInt(document.getElementById("team-size").value);
 
         // Draw the heatmap based on severityMap
         severityMap.forEach((cumulativeSeverity, dateString) => {
@@ -548,25 +540,6 @@
         teamSize = parseInt(teamSizeInput);
 
         // Redraw the heatmap with updated teamSize
-        drawHeatmap();
-      }
-
-      function updateMaxSeverity() {
-        const maxSeverityInput = document.getElementById("max-severity").value;
-        maxSeverity = parseInt(maxSeverityInput);
-        maxSeverityDynamic = false;
-
-        // Redraw the heatmap with updated maxSeverity
-        drawHeatmap();
-      }
-
-      function clearMaxSeverity() {
-        maxSeverityDynamic = true;
-        maxSeverity = defaultMaxSeverity;
-        let severityMap = buildSeverityMap();
-        setMaxSeverity(severityMap);
-
-        // Redraw the heatmap with updated maxSeverity
         drawHeatmap();
       }
 
@@ -669,7 +642,7 @@
         reader.onload = function (e) {
           const text = e.target.result;
           const parsedCsv = parseCSV(text);
-          
+
           if (!parsedCsv[0].hasOwnProperty("created at") ||
             !parsedCsv[0].hasOwnProperty("severity") ||
             !parsedCsv[0].hasOwnProperty("resolved at") ||
