@@ -49,7 +49,7 @@
     <p>Managing ongoing SEVs incurs an engineering maintenance cost on a team. This visualizer and indexing tool are designed to help capture this cost. The measure, SEV Saturation Index (SSI), is a coarse metric intended to capture the maintenance burden that an engineering team faces in responding to SEVs over a period of time.</p>
     <p>The SEV Saturation Index, or SSI, is defined as follows:</p>
     <p style="text-align:center;">
-      <img src="https://latex.codecogs.com/svg.latex?\large\text{SSI}=\frac{\sum_{i=0}^{4}(\text{days with open SEV}_i)\times(5-i)}{\text{team size}\times\text{num\_days}\times 5}">
+      <img src="https://latex.codecogs.com/svg.latex?\large\text{SSI}=\frac{\sum_{i=0}^{4}(\text{days with open SEV}_i)\times(5-i)}{\text{team size}\times\text{num\_days}}">
     </p>
     <p>Mileage will vary on a team-by-team basis, but the scaling is such that 0 represents no SEV saturation, and 1.0 would represent "Full" Saturation. Note that there is technically no maximum value for the metric, so supersaturation is possible.</p>
     <p>Notes: There are multiple options for `sev_start` and `sev_end`. Since we are interested in capturing the maintenance burden of SEVs, the recommendation for `sev_start` is biased toward using the time the SEV was created rather than when the incident started, and similarly for `sev_end`, bias is toward using a resolved or mitigated date.</p>
@@ -108,16 +108,18 @@
     </div>
     <div class="key">
         <h3>Severity Saturation level:</h3>
-        <div><span style="background-color: rgba(255, 0, 0, 0.5);"></span>>=90% Saturation</div>
-        <div><span style="background-color: rgba(255, 165, 0, 0.5);"></span>>=80% Saturation</div>
-        <div><span style="background-color: rgba(255, 255, 0, 0.5);"></span>>=70% Saturation</div>
-        <div><span style="background-color: rgba(154, 205, 50, 0.5);"></span>>=60% Saturation</div>
-        <div><span style="background-color: rgba(0, 128, 0, 0.5);"></span>>=50% Saturation</div>
-        <div><span style="background-color: rgba(0, 255, 255, 0.5);"></span>>=40% Saturation</div>
-        <div><span style="background-color: rgba(0, 191, 255, 0.5);"></span>>=30% Saturation</div>
-        <div><span style="background-color: rgba(30, 144, 255, 0.5);"></span>>=20% Saturation</div>
-        <div><span style="background-color: rgba(138, 43, 226, 0.5);"></span>>=10% Saturation</div>
-        <div><span></span><10% Saturation (Clear)</div>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 1000px;">
+          <div><span style="background-color: rgba(255, 0, 0, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=90% Saturation</div>
+          <div><span style="background-color: rgba(255, 255, 0, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=70% Saturation</div>
+          <div><span style="background-color: rgba(0, 128, 0, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=50% Saturation</div>
+          <div><span style="background-color: rgba(0, 191, 255, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=30% Saturation</div>
+          <div><span style="background-color: rgba(138, 43, 226, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=10% Saturation</div>
+          <div><span style="background-color: rgba(255, 165, 0, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=80% Saturation</div>
+          <div><span style="background-color: rgba(154, 205, 50, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=60% Saturation</div>
+          <div><span style="background-color: rgba(0, 255, 255, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=40% Saturation</div>
+          <div><span style="background-color: rgba(30, 144, 255, 0.5); width: 20px; height: 20px; display: inline-block;"></span> >=20% Saturation</div>
+          <div><span style="background-color: transparent; width: 20px; height: 20px; display: inline-block;"></span> <10% Saturation (Clear)</div>
+      </div>
       </div>
       <br>
       <div>
@@ -159,7 +161,7 @@
         }
         let maxSeverityDynamic = true
         let maxSeverity = defaultMaxSeverity;
-        let teamSize = 1;
+        let teamSize = 6; // starting default
 
         function buildSeverityMap(){
           let severityMap = new Map(); // Map to track cumulative severity per date
@@ -235,7 +237,6 @@
         }
 
         function drawHeatmap() {
-          console.log(SEVs);
           const canvas = document.getElementById('heatmap');
           const ctx = canvas.getContext('2d');
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -288,16 +289,12 @@
             ctx.fillStyle = 'black';
             ctx.font = '20px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`SEV Saturation Index: ${SSI.toFixed(2)}`, canvas.width / 2, 30);
+            ctx.fillText(`SEV Saturation Index: ${SSI.toFixed(3)}`, canvas.width / 2, 30);
         }
 
         function calculateSEVSaturationIndex() {
             let totalSeverity = 0;
             let severityMap = buildSeverityMap();
-            severityMap.forEach((cumulativeSeverity) => {
-                totalSeverity += cumulativeSeverity;
-            });
-
             const graphStartDateInput = document.getElementById('graph-start-date').value;
             const graphEndDateInput = document.getElementById('graph-end-date').value;
 
@@ -309,9 +306,15 @@
                 startTime = new Date(now - 180 * 24 * 60 * 60 * 1000);
                 endTime = now;
             }
+            severityMap.forEach((cumulativeSeverity, key) => {
+              date = new Date(key);
+              if (date.getTime() >= startTime.getTime() && date.getTime() <= endTime.getTime())
+                totalSeverity += cumulativeSeverity;
+            });
+
             const timeDifference = Math.abs(endTime - startTime);
             const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
-            const sevSaturationIndex = totalSeverity / (teamSize * daysDifference * 5);
+            const sevSaturationIndex = totalSeverity / (teamSize * daysDifference);
             return sevSaturationIndex;
         }
 
@@ -471,7 +474,6 @@
         }
 
         function deleteSEV(index) {
-            console.log("Deleting SEV at index:", index);
             SEVs.splice(index, 1); // Remove SEV from SEVs array
             drawHeatmap();
         }
