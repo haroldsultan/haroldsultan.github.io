@@ -63,81 +63,160 @@
       #sevTable tbody tr:nth-child(even) {
         background-color: #ffffff; /* Alternate row background color */
       }
+      body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        p {
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .content {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .ssi-formula {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .note {
+            font-style: italic;
+            color: #555;
+            background: #eef;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .options-list {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        .option {
+            margin-bottom: 20px;
+        }
+        .option p {
+            font-weight: bold;
+        }
+        .option span {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .option button, .option input, .option select {
+            margin-bottom: 10px;
+        }
+        .sev-entry {
+            background: #eef;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .sev-entry label, .sev-entry select, .sev-entry input {
+            display: block;
+            margin: 10px 0;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <h1>SEV Saturation Visualizer</h1>
-    <p>
-      A SEV refers to an unexpected incident or occurrence that can impact
-      projects or features across a company, affecting usability or safety for
-      customers. These events can range from minor disruptions (SEV4) to major
-      accidents (SEV1) or emergencies (SEV0), often requiring immediate
-      attention and action to mitigate any negative effects.
-    </p>
-    <p>
-      Managing ongoing SEVs incurs an engineering maintenance cost on a team.
-      This visualizer is designed to help capture this cost. The measure, SEV
-      Saturation Index (SSI), is a metric intended to capture the maintenance
-      burden that an engineering team faces in responding to SEVs over a period
-      of time.
-    </p>
-    <p>The SEV Saturation Index, or SSI, is defined as follows:</p>
-    <p style="text-align: center">
-      <img
-        src="https://latex.codecogs.com/svg.latex?\large\text{SSI}=\frac{\sum_{i=0}^{4}(\text{days with open SEV}_i)\times(5-i)}{\text{team size}\times\text{range\_num\_days}}"
-      />
-    </p>
-    <p>
-      Mileage will vary on a team-by-team basis, but the scaling is such that 0
-      represents no SEV saturation, and 1.0 would represent "Full" Saturation.
-      Note that there is technically no maximum value for the metric, so
-      supersaturation is possible.
-    </p>
-    <p>
-      Notes: There are multiple options for `sev_start` and `sev_end`. Since we
-      are interested in capturing the maintenance burden of SEVs, the
-      recommendation for `sev_start` is biased toward using the time the SEV was
-      created rather than when the incident started, and similarly for
-      `sev_end`, bias is toward using a resolved or mitigated date.
-    </p>
-    <h3>Team size</h3>
-    <div>
-      <label for="team-size">Team Size :</label>
-      <input type="number" id="team-size" min="1" value="6" />
-      <button onclick="updateTeamSize()">Apply</button>
+    <div class="content">
+      <h1>SEV Saturation Visualizer</h1>
+      <h3>Background</h3>
+      <p>
+          A SEV refers to an unexpected incident or occurrence that can impact
+          projects or features across a company, affecting usability or safety for
+          customers. These events can range from minor disruptions (SEV4) to major
+          accidents (SEV1) or emergencies (SEV0), often requiring immediate
+          attention and action to mitigate any negative effects.
+      </p>
+      <p>
+          Managing ongoing SEVs incurs an engineering maintenance cost on a team.
+          This visualizer is designed to help capture this cost. The measure, SEV
+          Saturation Index (SSI), is a metric intended to capture the maintenance
+          burden that an engineering team faces in responding to SEVs over a period
+          of time.
+      </p>
+      <p>The SEV Saturation Index, or SSI, is defined as follows:</p>
+      <div class="ssi-formula">
+          <img
+              src="https://latex.codecogs.com/svg.latex?\large\text{SSI}=\frac{\sum_{i=0}^{4}(\text{days with open SEV}_i)\times(5-i)}{\text{team size}\times\text{range\_num\_days}}"
+              alt="SSI Formula"
+          />
+      </div>
+      <p>
+          Mileage will vary on a team-by-team basis, but the scaling is such that 0
+          represents no SEV saturation, and 1.0 would represent "Full" Saturation.
+          Note that there is technically no maximum value for the metric, so
+          supersaturation is possible.
+      </p>
+      <p class="note">
+          Notes: There are multiple options for `sev_start` and `sev_end`. Since we
+          are interested in capturing the maintenance burden of SEVs, the
+          recommendation for `sev_start` is biased toward using the time the SEV was
+          created rather than when the incident started, and similarly for
+          `sev_end`, bias is toward using a resolved or mitigated date.
+      </p>
+      <h3>User Guide</h3>
+      <p>
+        To use the visualizer simply add SEVs, adjust team sizes, and continue to iterate and explore saturation levels after iterative tinkering.  You can also sort and delete SEVs from the table below.
+      </p>
+      <div class="container">
+        <h3>Step 1: Add SEVs</h3>
+        <ul class="options-list">
+            <!-- Option 1: Add a random SEV -->
+            <li class="option">
+                <p>Option 1: Just testing, add a random SEV</p>
+                <button onclick="addRandomSEV()">Add Random SEV</button>
+            </li>
+
+            <!-- Option 2: Upload CSV -->
+            <li class="option">
+                <p>Option 2: Upload a CSV with SEVs</p>
+                <label for="csv-file">Upload CSV:</label>
+                <input type="file" id="csv-file" accept=".csv" />
+                <button onclick="uploadCSV()">Upload preformatted CSV</button>
+                <button onclick="uploadIncidentIoCSV()">Upload Incident.IO CSV</button>
+            </li>
+
+            <!-- Option 3: Manually add a SEV -->
+            <li class="option">
+                <div>
+                    <p>Option 3: Manually add a SEV</p>
+                    <label for="sev-level">Severity Level:</label>
+                    <select id="sev-level">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" id="start-date" />
+                    <label for="end-date">End Date:</label>
+                    <input type="date" id="end-date" />
+                    <button onclick="addSEV()">Add SEV</button>
+                </div>
+            </li>
+        </ul>
     </div>
-    <h3>Add SEVs</h3>
-    <div class="csv-upload">
-      <label for="csv-file">Upload CSV:</label>
-      <input type="file" id="csv-file" accept=".csv" />
-      <button onclick="uploadCSV()">Upload preformatted csv</button>
-      <button onclick="uploadIncidentIoCSV()">Upload Incident.IO csv</button>
-      <br />
+      <h3>Step 2: Adjust Team size</h3>
       <div>
-        <text>Just testing, add a random SEV </text>
-        <button onclick="addRandomSEV()">Add Random SEV</button>
+        <label for="team-size">Team Size :</label>
+        <input type="number" id="team-size" min="1" value="6" />
+        <button onclick="updateTeamSize()">Apply</button>
+        <button onclick="incrementTeamSize()">Add Team Member</button>
+        <button onclick="decrementTeamSize()">Remove Team Member</button>
       </div>
-      <br />
-      <div class="sev-entry">
-        <text>Manually add a SEV</text>
-        <label for="sev-level">Severity Level:</label>
-        <select id="sev-level">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-        <br />
-        <label for="start-date">Start Date:</label>
-        <input type="date" id="start-date" /><br />
-        <label for="end-date">End Date:</label>
-        <input type="date" id="end-date" /><br />
-        <button onclick="addSEV()">Add SEV</button>
-      </div>
-    </div>
-    <canvas id="stackedBarChart" width="800" height="200"></canvas>
+    <canvas id="stackedBarChart" width="800" height="300"></canvas>
       <h4>Clear SEVs</h4>
       <button onclick="clearSEVs()">Clear All SEVs</button>
       <br />
@@ -161,6 +240,7 @@
         </tbody>
       </table>
     </div>
+  </div>
     <script>
       const SEVs = [];
       const canvas = document.getElementById('stackedBarChart');
@@ -309,7 +389,6 @@
         let severityArrayMap = buildSeverityArrayMap();
         createChart(severityArrayMap);
         populateSEVTable();
-        console.log(calculateSEVSaturationIndex());
       }
 
       const drawSaturationLinePlugin = {
@@ -360,15 +439,53 @@
         return maxValue;
       }
 
+      function generateDateRange(startDate, endDate) {
+         const dateArray = [];
+         let currentDate = new Date(startDate);
+
+         while (currentDate <= endDate) {
+             dateArray.push(new Date(currentDate));
+             currentDate.setDate(currentDate.getDate() + 1);
+         }
+
+         return dateArray;
+      }
+
 
       function createChart(chartData) {
-            const dates = chartData.keys().toArray();
+            let dates = chartData.keys().toArray();
+            // debugger
+            dates = dates.sort((a, b) => new Date(a) - new Date(b));
+            const parsedDates = dates.map(date => new Date(date));
+            const minDate = new Date(Math.min.apply(null, parsedDates));
+            const maxDate = new Date(Math.max.apply(null, parsedDates));
+            const fullDateRange = generateDateRange(minDate, maxDate);
+
+            const dateIndexMap = new Map();
+            parsedDates.forEach((date, index) => {
+                dateIndexMap.set(date.toISOString().split('T')[0], index);
+            });
+
             const severities = [5, 4, 3, 2, 1];
             const weightedCounts = severities.map(severity =>
                 dates.map(date =>
                   chartData.get(date).filter(item => item.severity === severity).length * severity
                 )
             );
+
+            const completedWeightedCounts = severities.map(severity => {
+                return fullDateRange.map(date => {
+                    const dateString = date.toISOString().split('T')[0];
+                    if (dateIndexMap.has(dateString)) {
+                        return weightedCounts[severity - 1][dateIndexMap.get(dateString)];
+                    }
+                    return 0; // Fill missing data with zero
+                });
+            });
+            const fullDateRangeLabels = fullDateRange.map(date => date.toISOString().split('T')[0]);
+
+            debugger;
+
 
             if (stackedBarChart) {
               stackedBarChart.destroy();
@@ -393,16 +510,16 @@
 
             const teamSizeInput = document.getElementById("team-size").value;
             teamSize = parseInt(teamSizeInput);
-            const currentMax = zipAndFindMax(weightedCounts[0], weightedCounts[1], weightedCounts[2], weightedCounts[3], weightedCounts[4]);
+            const currentMax = zipAndFindMax(completedWeightedCounts[0], completedWeightedCounts[1], completedWeightedCounts[2], completedWeightedCounts[3], completedWeightedCounts[4]);
             let height = Math.max(teamSize, currentMax) + 1;
             height = Math.min(height, currentMax * 2.5);
             stackedBarChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: dates,
+                labels: fullDateRangeLabels,
                 datasets: severities.map((severity, index) => ({
                   label: labels[severity],
-                  data: weightedCounts[severity - 1], // Adjust index to match severity array
+                  data: completedWeightedCounts[severity -1], // Adjust index to match severity array
                   backgroundColor: colors[severity],
                   borderColor: colors[severity],
                   borderWidth: 1
@@ -454,6 +571,28 @@
       function updateTeamSize() {
         const teamSizeInput = document.getElementById("team-size").value;
         teamSize = parseInt(teamSizeInput);
+
+        // Redraw the heatmap with updated teamSize
+        drawHeatmap();
+      }
+
+      function decrementTeamSize() {
+        const teamSizeInput = document.getElementById("team-size");
+        if (teamSize > 1) {
+          teamSize -= 1;
+          teamSizeInput.value = teamSize;
+        } else {
+          alert('Team size cannot be less than 1');
+        }
+
+        // Redraw the heatmap with updated teamSize
+        drawHeatmap();
+      }
+
+      function incrementTeamSize() {
+        const teamSizeInput = document.getElementById("team-size");
+        teamSize += 1;
+        teamSizeInput.value = teamSize;
 
         // Redraw the heatmap with updated teamSize
         drawHeatmap();
